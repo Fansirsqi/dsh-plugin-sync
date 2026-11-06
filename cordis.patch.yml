@@ -1,0 +1,4 @@
+# dsh-plugin-sync: sync this profile's plugins, switches, and Agent Center teams to other DSH nodes.
+- insert:
+    - id: plugin-sync
+      name: '@fansirsqi/dsh-plugin-sync'

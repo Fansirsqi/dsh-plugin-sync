@@ -1,0 +1,73 @@
+{
+  "name": "@fansirsqi/dsh-plugin-sync",
+  "version": "0.1.0",
+  "description": "Back up and sync DSH plugins, configuration switches, and Agent Center teams to other DSH nodes. 把本机 DSH 插件、配置开关与智能体中心团队备份并同步到其他节点。",
+  "type": "module",
+  "license": "MIT",
+  "author": "Fansirsqi",
+  "icon": "icon.svg",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "sync",
+    "backup",
+    "agent-center"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fansirsqi/dsh-plugin-sync.git"
+  },
+  "homepage": "https://github.com/Fansirsqi/dsh-plugin-sync#readme",
+  "bugs": {
+    "url": "https://github.com/Fansirsqi/dsh-plugin-sync/issues"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib/*.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node test/check.mjs",
+    "check": "node test/check.mjs"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.2.1-rc.3",
+    "react": "^18.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dsh": {
+    "engines": {
+      "dsh": ">=0.2.1-rc.3"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ]
+    }
+  }
+}
