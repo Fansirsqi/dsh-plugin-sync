@@ -44,7 +44,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 固定到某个版本：
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.2.0
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.2.1
 ```
 
 安装后如果设置页或工具没有出现，重启一次 `dsh web`。

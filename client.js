@@ -195,10 +195,8 @@ window.__ModuleLoader__.load({
         ]),
         h('div', { className: 'ps-field', key: 'sshHost' }, [
           h('label', { key: 'l' }, t('sshHost')),
-          h('select', { key: 's', className: 'ps-select', value: sshHostOptionsList.includes(draft.sshHost) ? draft.sshHost : '', onChange: update('sshHost') }, [
-            h('option', { key: '', value: '' }, '— ' + t('chooseSshHost') + ' —'),
-            ...sshHostOptionsList.map((alias) => h('option', { key: alias, value: alias }, alias)),
-          ]),
+          h('input', { key: 'i', className: 'ps-input', list: 'ps-ssh-hosts', value: draft.sshHost || '', onChange: update('sshHost'), placeholder: t('chooseSshHost') }),
+          h('datalist', { key: 'd', id: 'ps-ssh-hosts' }, sshHostOptionsList.map((alias) => h('option', { key: alias, value: alias }))),
         ]),
         h('div', { className: 'ps-field', key: 'host' }, [h('label', { key: 'l' }, t('host')), h('input', { key: 'i', className: 'ps-input', value: draft.host || '', onChange: update('host'), placeholder: '192.168.1.10（可选）' })]),
         h('div', { className: 'ps-field', key: 'user' }, [h('label', { key: 'l' }, t('user')), h('input', { key: 'i', className: 'ps-input', value: draft.user || '', onChange: update('user'), placeholder: 'root（可选）' })]),

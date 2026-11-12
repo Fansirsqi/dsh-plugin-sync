@@ -44,7 +44,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 Pin a release:
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.2.0
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.2.1
 ```
 
 Restart `dsh web` if the settings section or tools do not appear after installation.
