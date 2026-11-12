@@ -61,7 +61,8 @@ window.__ModuleLoader__.load({
     };
 
     const CSS = `
-.ps-page{display:flex;flex-direction:column;gap:18px;padding:4px 0 32px;color:var(--dsw-alias-label-primary);font-size:13px;line-height:1.55}
+.ps-page{box-sizing:border-box;block-size:100%;min-block-size:0;overflow:auto;display:flex;flex-direction:column;gap:18px;padding:20px 24px 40px;color:var(--dsw-alias-label-primary);font-size:13px;line-height:1.55}
+@media (max-width:720px){.ps-page{padding:14px 14px 28px}}
 .ps-head h2{margin:0 0 6px;font-size:18px;font-weight:600;letter-spacing:.01em}
 .ps-head p{margin:0;color:var(--dsw-alias-label-secondary);max-width:760px}
 .ps-card{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-3);border-radius:12px;padding:16px}
@@ -244,6 +245,22 @@ window.__ModuleLoader__.load({
       ]);
     }
 
+    function PluginSyncIcon({ size }) {
+      const edge = size || 16;
+      return h('svg', {
+        viewBox: '0 0 16 16', width: edge, height: edge, fill: 'none',
+        stroke: 'currentColor', strokeWidth: '1.4', strokeLinecap: 'round', strokeLinejoin: 'round',
+        'aria-hidden': 'true',
+      }, [
+        h('circle', { key: 'a', cx: '4.8', cy: '4.6', r: '2.2' }),
+        h('circle', { key: 'b', cx: '11.2', cy: '11.4', r: '2.2' }),
+        h('path', { key: 'c', d: 'M6.9 4.6h2.2a2.2 2.2 0 0 1 2.2 2.2v1.1' }),
+        h('path', { key: 'd', d: 'M9.1 11.4H6.9a2.2 2.2 0 0 1-2.2-2.2V8.1' }),
+        h('path', { key: 'e', d: 'M10.1 7.3l1.2 1.2 1.2-1.2' }),
+        h('path', { key: 'f', d: 'M5.9 8.7L4.7 7.5 3.5 8.7' }),
+      ]);
+    }
+
     function Page() {
       const t = useT();
       const [state, setState] = useState(null);
@@ -383,7 +400,7 @@ window.__ModuleLoader__.load({
       const job = (started) => started && nodes.find((node) => node.id === selected) && state?.jobs?.find((item) => item.nodeId === selected);
       const currentJob = job(startedAt);
 
-      return h('div', { className: 'ps-page', 'data-dsh-part': 'plugin-sync' }, [
+      return h('div', { className: 'ps-page', 'data-dsh-plugin': 'plugin-sync', 'data-dsh-part': 'plugin-sync' }, [
         h('style', { key: 'css' }, CSS),
         h('div', { key: 'head', className: 'ps-head' }, [
           h('h2', { key: 'h' }, t('title')),
@@ -497,11 +514,15 @@ window.__ModuleLoader__.load({
           }
         };
         runtime.t = t;
-        ctx.effect(() => ctx.slots.inject('settings.section', () => ctx.slots.register({
-          name: 'settings.section',
+        ctx.effect(() => ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
+          name: 'sidebar.panellist',
           id: 'plugin-sync',
-          order: 105,
+          order: 40,
           label: () => t('title'),
+        }, PluginSyncIcon)));
+        ctx.effect(() => ctx.slots.inject('main', () => ctx.slots.register({
+          name: 'main',
+          key: 'plugin-sync',
         }, Page)));
         if (disposeLocale) ctx.effect(() => disposeLocale);
       },

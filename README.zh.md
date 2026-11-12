@@ -15,7 +15,7 @@ kind: "package-reference"
 
 <p align="center">
   <strong>把本机 DSH 插件、开关和智能体中心团队同步到另一台节点。</strong><br>
-  <em>设置页 · 五个 Agent 工具 · 先装缺失插件，再写配置。</em>
+  <em>独立侧边栏页面 · 五个 Agent 工具 · 先装缺失插件，再写配置。</em>
 </p>
 
 这是 DeepSeek Harness（DSH）Web 的插件：导出当前 profile 的已安装插件、启用开关、`cordis.patch.yml` 配置、智能体中心团队和 `~/.ssh/config` Host 段，再通过 SSH 应用到另一台 DSH 节点。远端缺失的插件会**先安装**，然后才写引用它的配置。模型相关配置不会跨节点复制，两端各自保留自己的模型路由。
@@ -44,16 +44,16 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 固定到某个版本：
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.2.1
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.0
 ```
 
-安装后如果设置页或工具没有出现，重启一次 `dsh web`。
+安装后如果侧边栏入口或工具没有出现，重启一次 `dsh web`。
 
 要求：DSH `>= 0.2.1-rc.3`，Node.js `^22.19.0 || >=24.0.0`。
 
 ## 使用
 
-打开 **设置 → 插件同步**。
+点击左侧边栏的 **插件同步**。
 
 1. 添加节点：在 **SSH 配置别名** 中选择 `~/.ssh/config` 里的 Host（推荐，实时读取），或选择 `dsh-ssh` 主机，或直接填写 host / user / port / keyPath。
 2. 设置远端 `profile`（默认 `web`）、`DSH_HOME`（默认 `~/.dsh`）和 `dsh` 命令。
@@ -138,7 +138,7 @@ npm test
 
 ```text
 index.js            Host 入口（routes + tools）
-client.js           设置 → 插件同步页面
+client.js           独立的插件同步侧边栏页面
 lib/snapshot.js     本机/远端快照
 lib/plan.js         差异计算
 lib/merge.js        package.json 与团队账本合并

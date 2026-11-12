@@ -15,7 +15,7 @@ English | [中文](README.zh.md)
 
 <p align="center">
   <strong>Back up and sync DSH plugins, switches, and Agent Center teams to another node.</strong><br>
-  <em>Settings page · five Agent tools · install missing plugins first, then apply config.</em>
+  <em>Standalone sidebar page · five Agent tools · install missing plugins first, then apply config.</em>
 </p>
 
 A DeepSeek Harness (DSH) Web plugin that exports this profile's installed plugins, bundle selection, `cordis.patch.yml` configuration, Agent Center teams, and `~/.ssh/config` Host blocks, then applies them to another DSH node over SSH. A remote plugin missing from the target is installed **before** its configuration is written. Model-related configuration is never copied; each side keeps its own model routes.
@@ -44,7 +44,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 Pin a release:
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.2.1
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.0
 ```
 
 Restart `dsh web` if the settings section or tools do not appear after installation.
@@ -53,7 +53,7 @@ Requirements: DSH `>= 0.2.1-rc.3` and Node.js `^22.19.0 || >=24.0.0`.
 
 ## Use
 
-Open **Settings → Plugin Sync**.
+Click **Plugin Sync** in the left sidebar.
 
 1. Add a node: choose a Host from `~/.ssh/config` in **SSH config Host** (recommended; the live file is authoritative), or choose a `dsh-ssh` host, or fill in host / user / port / key path.
 2. Set the remote `profile` (default `web`), `DSH_HOME` (default `~/.dsh`), and `dsh` command.
@@ -138,7 +138,7 @@ Layout:
 
 ```text
 index.js            Host entry (routes + tools)
-client.js           Settings → Plugin Sync page
+client.js           Standalone Plugin Sync sidebar page
 lib/snapshot.js     Local/remote snapshots
 lib/plan.js         Diff calculation
 lib/merge.js        package.json and team ledger merges
