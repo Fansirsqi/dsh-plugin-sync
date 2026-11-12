@@ -33,6 +33,7 @@ A DeepSeek Harness (DSH) Web plugin that exports this profile's installed plugin
 - **Backups** — before applying, the target's `package.json`, lockfile, patch, and team ledger are copied to `$DSH_HOME/plugin-sync/backups/<timestamp>/`.
 - **Safe by default** — remote-only plugins, rows, and teams are kept unless **Mirror exactly** is enabled.
 - **Clear history** — the sync history card has a **Clear history** button; it removes records only, never nodes or options.
+- **Runtime-aware versions** — when the target runs a different DSH version, existing plugin versions are preserved and missing official plugins use the target runtime version, so the target does not reject the install. Match the DSH versions first for an exact mirror.
 
 ## Install
 
@@ -45,7 +46,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 Pin a release:
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.1
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.2
 ```
 
 Restart `dsh web` if the settings section or tools do not appear after installation.

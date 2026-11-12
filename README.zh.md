@@ -33,6 +33,7 @@ kind: "package-reference"
 - **备份**：同步前把远端 `package.json`、锁文件、patch 和团队账本复制到 `$DSH_HOME/plugin-sync/backups/<时间戳>/`。
 - **默认安全**：默认保留远端独有的插件、配置行和团队；只有打开 **完全镜像** 才会删除。
 - **清除记录**：同步记录卡片有 **清除记录** 按钮，只清空记录，不删除节点和同步选项。
+- **运行时版本适配**：两端 DSH 版本不同时，保留远端已安装插件的版本；缺失的官方插件按远端 DSH 版本安装，避免被运行时拒绝安装。要完全镜像，建议先把两端 DSH 升级到同一版本。
 
 ## 安装
 
@@ -45,7 +46,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 固定到某个版本：
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.1
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.2
 ```
 
 安装后如果侧边栏入口或工具没有出现，重启一次 `dsh web`。
