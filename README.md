@@ -18,7 +18,7 @@ English | [中文](README.zh.md)
   <em>Standalone sidebar page · five Agent tools · install missing plugins first, then apply config.</em>
 </p>
 
-A DeepSeek Harness (DSH) Web plugin that exports this profile's installed plugins, bundle selection, `cordis.patch.yml` configuration, Agent Center teams, and `~/.ssh/config` Host blocks, then applies them to another DSH node over SSH. A remote plugin missing from the target is installed **before** its configuration is written. Model-related configuration is never copied; each side keeps its own model routes.
+A DeepSeek Harness (DSH) Web plugin that exports this profile's installed plugins, bundle selection, `cordis.patch.yml` configuration, and Agent Center teams, then applies them to another DSH node over SSH. Node connections can read the DSH host's `~/.ssh/config` live. A remote plugin missing from the target is installed **before** its configuration is written. Model-related configuration is never copied; each side keeps its own model routes.
 
 ## Features
 
@@ -27,8 +27,7 @@ A DeepSeek Harness (DSH) Web plugin that exports this profile's installed plugin
 - **Plugin configuration** — `cordis.patch.yml` rows are merged by id. Remote comments, `!!js` expressions, model rows, and untouched rows survive; local insert rows are added when absent.
 - **Local-directory bundles** — `link:` / `file:` plugins are packed to `$DSH_HOME/plugin-sync/bundles/<name>` on the target, linked into the profile, and re-uploaded only when their content fingerprint changes.
 - **Agent Center teams** — merges `dsh-agents/ledger.json` `teams` by name. Remote team ids, member ids, and `runs` history are preserved.
-- **SSH configuration (off by default)** — optionally merges the **DSH host's** `~/.ssh/config` Host blocks by alias. It cannot read the browser machine's SSH config, so remote access usually does not need it; enable it only when both DSH hosts should share Host entries. Remote-only blocks are kept and the file is backed up.
-- **Live Host resolution** — a node can name an OpenSSH Host (`fedora`) instead of the cached `dsh-ssh` IP. Connections then use the current `~/.ssh/config`, so an IP change is picked up without editing the node.
+- **Read local SSH config (on by default)** — node connections can resolve an OpenSSH Host (`fedora`) from the DSH host's own `~/.ssh/config` instead of a cached `dsh-ssh` IP. The file is read live, never modified or synced.
 - **Model configuration is excluded** — rows and dependencies matching `llm`, `model`, or `web-search` are skipped, `settings.yaml` is never written, local team model pins are not copied, and existing remote pins are preserved.
 - **Backups** — before applying, the target's `package.json`, lockfile, patch, and team ledger are copied to `$DSH_HOME/plugin-sync/backups/<timestamp>/`.
 - **Safe by default** — remote-only plugins, rows, and teams are kept unless **Mirror exactly** is enabled.
@@ -46,7 +45,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 Pin a release:
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.3
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.4
 ```
 
 Restart `dsh web` if the settings section or tools do not appear after installation.
@@ -87,7 +86,6 @@ Example prompts:
 | Plugin config | `cordis.patch.yml` rows merge by id; insert rows are added when missing. |
 | Local bundles | Source directories are uploaded and linked; content fingerprints avoid needless uploads. |
 | Agent Center teams | Teams merge by name; remote ids and run history are preserved. |
-| SSH config | `~/.ssh/config` Host blocks merge by alias; remote-only blocks are kept and the file is backed up first. |
 | Model config | Skipped: model/search rows and dependencies, `settings.yaml`, and team model pins. |
 | Secrets | Synced by default because MCP servers need them; turn this off in Settings if the target must not receive tokens. |
 
@@ -100,15 +98,14 @@ Example prompts:
 5. Merge `cordis.patch.yml`.
 6. Write the final bundle selection; when mirroring, install once more to prune removed dependencies.
 7. Merge Agent Center teams.
-8. Merge `~/.ssh/config` Host blocks.
-9. Re-read the target and verify dependency versions, config rows, enabled bundles, team names, and SSH Host aliases.
+8. Re-read the target and verify dependency versions, config rows, enabled bundles, and team names.
 
 If an install stage fails, `package.json` and the lockfile are restored from the backups taken for that run.
 
 ## Settings
 
 - **Sync Agent Center teams** — on by default.
-- **Sync the DSH host's SSH config** — off by default; merges the host's Host blocks and keeps remote-only entries. A web page cannot read the client machine's `~/.ssh/config`.
+- **Read local SSH config (`~/.ssh/config`)** — on by default; resolves node Host aliases from the DSH host's own file. It cannot read the browser machine's config and never writes the file.
 - **Sync secret fields** — on by default; controls `token` / `apiKey` / `password` values.
 - **Upload local-directory plugins** — on by default.
 - **Install dependencies of uploaded local plugins** — on by default.
@@ -130,7 +127,7 @@ Node definitions and history live in `$DSH_HOME/plugin-sync/config.json` (mode 0
 
 ## Development
 
-No runtime dependency is declared; the plugin borrows the profile's `yaml` package. This repository has a syntax check and SSH config tests:
+No runtime dependency is declared; the plugin borrows the profile's `yaml` package. This repository has a syntax check and SSH config parser tests:
 
 ```sh
 npm test
@@ -154,7 +151,7 @@ lib/tools.js        Agent tools
 lib/trust.js        Loopback/same-origin guard
 locale/{zh,en}.json Plugin metadata
 icon.svg            Plugin icon
-test/ssh-config.test.mjs  SSH config Host merge tests
+test/ssh-config.test.mjs  SSH config parser tests
 ```
 
 ## License
