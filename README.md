@@ -27,7 +27,7 @@ A DeepSeek Harness (DSH) Web plugin that exports this profile's installed plugin
 - **Plugin configuration** — `cordis.patch.yml` rows are merged by id. Remote comments, `!!js` expressions, model rows, and untouched rows survive; local insert rows are added when absent.
 - **Local-directory bundles** — `link:` / `file:` plugins are packed to `$DSH_HOME/plugin-sync/bundles/<name>` on the target, linked into the profile, and re-uploaded only when their content fingerprint changes.
 - **Agent Center teams** — merges `dsh-agents/ledger.json` `teams` by name. Remote team ids, member ids, and `runs` history are preserved.
-- **SSH configuration** — merges `~/.ssh/config` Host blocks by alias, so a changed hostname, port, user, or ProxyCommand on one machine follows the sync. Remote-only Host blocks are kept; the file is backed up before writing.
+- **SSH configuration (off by default)** — optionally merges the **DSH host's** `~/.ssh/config` Host blocks by alias. It cannot read the browser machine's SSH config, so remote access usually does not need it; enable it only when both DSH hosts should share Host entries. Remote-only blocks are kept and the file is backed up.
 - **Live Host resolution** — a node can name an OpenSSH Host (`fedora`) instead of the cached `dsh-ssh` IP. Connections then use the current `~/.ssh/config`, so an IP change is picked up without editing the node.
 - **Model configuration is excluded** — rows and dependencies matching `llm`, `model`, or `web-search` are skipped, `settings.yaml` is never written, local team model pins are not copied, and existing remote pins are preserved.
 - **Backups** — before applying, the target's `package.json`, lockfile, patch, and team ledger are copied to `$DSH_HOME/plugin-sync/backups/<timestamp>/`.
@@ -46,7 +46,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 Pin a release:
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.2
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.3
 ```
 
 Restart `dsh web` if the settings section or tools do not appear after installation.
@@ -108,7 +108,7 @@ If an install stage fails, `package.json` and the lockfile are restored from the
 ## Settings
 
 - **Sync Agent Center teams** — on by default.
-- **Sync SSH config (`~/.ssh/config`)** — on by default; merges Host blocks and keeps remote-only entries.
+- **Sync the DSH host's SSH config** — off by default; merges the host's Host blocks and keeps remote-only entries. A web page cannot read the client machine's `~/.ssh/config`.
 - **Sync secret fields** — on by default; controls `token` / `apiKey` / `password` values.
 - **Upload local-directory plugins** — on by default.
 - **Install dependencies of uploaded local plugins** — on by default.

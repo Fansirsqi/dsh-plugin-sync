@@ -27,7 +27,7 @@ kind: "package-reference"
 - **插件配置**：`cordis.patch.yml` 按 row id 合并。远端注释、`!!js` 表达式、模型行和未涉及的行都会保留；本机有、远端没有的 insert 行会补上。
 - **本地目录插件**：`link:` / `file:` 插件会打包上传到远端 `$DSH_HOME/plugin-sync/bundles/<name>`，以 link 方式安装；按内容指纹判断是否需要重传。
 - **智能体中心团队**：按团队名合并 `dsh-agents/ledger.json` 的 `teams`，保留远端团队 id、成员 id 和 `runs` 历史。
-- **SSH 配置**：按 Host 别名合并 `~/.ssh/config`，主机名、端口、用户或 ProxyCommand 改了会跟着同步；远端独有的 Host 段保留，写入前会备份。
+- **SSH 配置（默认关闭）**：可选地按 Host 别名合并 **DSH 主机自身** 的 `~/.ssh/config`。它读不到浏览器所在电脑的 SSH 配置，远程访问通常不需要；只有两台 DSH 主机需要共享 Host 时才建议开启。远端独有段保留，写入前会备份。
 - **实时 Host 解析**：节点可以直接选择 OpenSSH 的 Host（如 `fedora`），连接时实时读取当前 `~/.ssh/config`。这样 IP 变了不用改节点里的缓存地址。
 - **模型配置例外**：id 或包名匹配 `llm`、`model`、`web-search` 的行和依赖不同步；`settings.yaml` 不写入；本机团队成员的模型 pin 不复制，远端已有 pin 保留。
 - **备份**：同步前把远端 `package.json`、锁文件、patch 和团队账本复制到 `$DSH_HOME/plugin-sync/backups/<时间戳>/`。
@@ -46,7 +46,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 固定到某个版本：
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.2
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.3
 ```
 
 安装后如果侧边栏入口或工具没有出现，重启一次 `dsh web`。
@@ -108,7 +108,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.2
 ## 设置项
 
 - **同步智能体中心团队**：默认开。
-- **同步 SSH 配置（`~/.ssh/config`）**：默认开；合并 Host 段并保留远端独有项。
+- **同步 DSH 主机的 SSH 配置**：默认关；合并该主机的 Host 段并保留远端独有项。网页无法读取浏览器电脑的 `~/.ssh/config`。
 - **同步密钥字段**：默认开；控制 `token` / `apiKey` / `password`。
 - **上传本地目录插件**：默认开。
 - **为上传的本地插件安装依赖**：默认开。
