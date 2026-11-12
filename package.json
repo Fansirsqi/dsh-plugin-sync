@@ -1,7 +1,7 @@
 {
   "name": "@fansirsqi/dsh-plugin-sync",
-  "version": "0.1.0",
-  "description": "Back up and sync DSH plugins, configuration switches, and Agent Center teams to other DSH nodes. 把本机 DSH 插件、配置开关与智能体中心团队备份并同步到其他节点。",
+  "version": "0.2.0",
+  "description": "Back up and sync DSH plugins, switches, Agent Center teams, and SSH config to other DSH nodes. 把本机 DSH 插件、配置开关、智能体中心团队和 SSH 配置同步到其他节点。",
   "type": "module",
   "license": "MIT",
   "author": "Fansirsqi",
@@ -43,7 +43,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node test/check.mjs",
+    "test": "node test/check.mjs && node --test test/ssh-config.test.mjs",
     "check": "node test/check.mjs"
   },
   "peerDependencies": {

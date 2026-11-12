@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Plugin Sync",
-    "description": "Back up and sync this machine's DSH plugins, switches, and Agent Center teams to other nodes."
+    "description": "Back up and sync this machine's DSH plugins, switches, Agent Center teams, and SSH config to other nodes."
   },
   "title": "Plugin Sync",
   "intro": "Sync installed plugins, versions, enable switches, plugin config, and Agent Center teams to another DSH node. Model-related config stays local.",

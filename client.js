@@ -12,12 +12,12 @@ window.__ModuleLoader__.load({
         intro: '把本机已安装的插件、版本、启用开关、插件配置和智能体中心团队同步到其他 DSH 节点；模型相关配置不会同步。',
         nodes: '节点', addNode: '添加节点', editNode: '编辑节点', deleteNode: '删除',
         noNodes: '还没有配置节点。先添加一台运行 DSH 的 SSH 主机。',
-        name: '名称', sshAlias: 'SSH 主机', host: '主机地址', user: '用户', port: '端口',
+        name: '名称', sshAlias: 'SSH 主机', sshHost: 'SSH 配置别名', host: '主机地址', user: '用户', port: '端口',
         keyPath: '私钥路径', profile: 'Profile', dshHome: 'DSH_HOME', dshCommand: 'dsh 命令',
-        chooseHost: '选择 dsh-ssh 主机', save: '保存', cancel: '取消', probe: '测试连接',
+        chooseHost: '选择 dsh-ssh 主机', chooseSshHost: '跟随 ~/.ssh/config（推荐）', save: '保存', cancel: '取消', probe: '测试连接',
         plan: '检查差异', apply: '立即同步', backup: '备份', syncing: '同步中', checking: '检查中',
         options: '同步选项', optPrune: '完全镜像（删除对端多余的插件、配置行和团队）',
-        optTeams: '同步智能体中心团队', optSecrets: '同步密钥字段（token / apiKey / password）',
+        optTeams: '同步智能体中心团队', optSshConfig: '同步 SSH 配置（~/.ssh/config）', optSecrets: '同步密钥字段（token / apiKey / password）',
         optLocalDeps: '为上传的本地插件安装依赖', optCopyLocal: '上传本地目录插件',
         optBackup: '同步前备份对端', local: '本机状态', packages: '插件依赖', bundles: '启用插件',
         rows: '配置行', modelRows: '模型配置（跳过）', teams: '团队', members: '成员',
@@ -25,7 +25,7 @@ window.__ModuleLoader__.load({
         install: '待安装插件', remove: '待移除插件', enable: '待启用', disable: '待停用',
         patchAdd: '配置待新增', patchUpdate: '配置待更新', patchRemove: '配置待移除',
         teamsAdd: '团队待新增', teamsUpdate: '团队待更新', teamsRemove: '团队待移除',
-        upload: '本地插件待上传', warnings: '提示', resultOk: '同步完成', resultFail: '同步失败',
+        upload: '本地插件待上传', sshAdd: 'SSH 配置待新增', sshUpdate: 'SSH 配置待更新', sshRemove: 'SSH 配置待移除', sshConfig: 'SSH Host', warnings: '提示', resultOk: '同步完成', resultFail: '同步失败',
         remote: '远端', version: '版本', reachable: '连接正常', unreachable: '无法连接',
         refresh: '刷新', close: '关闭', confirmDelete: '确定删除这个节点？',
         applyConfirm: '将把本机插件状态同步到该节点，继续？', never: '从未', seconds: '秒',
@@ -37,12 +37,12 @@ window.__ModuleLoader__.load({
         intro: "Sync installed plugins, versions, enable switches, plugin config, and Agent Center teams to another DSH node. Model-related config stays local.",
         nodes: 'Nodes', addNode: 'Add node', editNode: 'Edit node', deleteNode: 'Delete',
         noNodes: 'No node yet. Add an SSH host running DSH first.',
-        name: 'Name', sshAlias: 'SSH host', host: 'Host', user: 'User', port: 'Port',
+        name: 'Name', sshAlias: 'SSH host', sshHost: 'SSH config Host', host: 'Host', user: 'User', port: 'Port',
         keyPath: 'Key path', profile: 'Profile', dshHome: 'DSH_HOME', dshCommand: 'dsh command',
-        chooseHost: 'Choose a dsh-ssh host', save: 'Save', cancel: 'Cancel', probe: 'Test',
+        chooseHost: 'Choose a dsh-ssh host', chooseSshHost: 'Follow ~/.ssh/config (recommended)', save: 'Save', cancel: 'Cancel', probe: 'Test',
         plan: 'Check diff', apply: 'Sync now', backup: 'Backup', syncing: 'Syncing', checking: 'Checking',
         options: 'Options', optPrune: 'Mirror exactly (remove extra plugins, rows, and teams)',
-        optTeams: 'Sync Agent Center teams', optSecrets: 'Sync secret fields (token / apiKey / password)',
+        optTeams: 'Sync Agent Center teams', optSshConfig: 'Sync SSH config (~/.ssh/config)', optSecrets: 'Sync secret fields (token / apiKey / password)',
         optLocalDeps: 'Install dependencies of uploaded local plugins', optCopyLocal: 'Upload local-directory plugins',
         optBackup: 'Back up the node before syncing', local: 'Local state', packages: 'Plugin dependencies',
         bundles: 'Enabled bundles', rows: 'Config rows', modelRows: 'Model config (skipped)',
@@ -51,7 +51,7 @@ window.__ModuleLoader__.load({
         remove: 'Plugins to remove', enable: 'Bundles to enable', disable: 'Bundles to disable',
         patchAdd: 'Config rows to add', patchUpdate: 'Config rows to update', patchRemove: 'Config rows to remove',
         teamsAdd: 'Teams to add', teamsUpdate: 'Teams to update', teamsRemove: 'Teams to remove',
-        upload: 'Local bundles to upload', warnings: 'Notes', resultOk: 'Sync complete',
+        upload: 'Local bundles to upload', sshAdd: 'SSH hosts to add', sshUpdate: 'SSH hosts to update', sshRemove: 'SSH hosts to remove', sshConfig: 'SSH Hosts', warnings: 'Notes', resultOk: 'Sync complete',
         resultFail: 'Sync failed', remote: 'Remote', version: 'Version', reachable: 'Reachable',
         unreachable: 'Unreachable', refresh: 'Refresh', close: 'Close', confirmDelete: 'Delete this node?',
         applyConfirm: "Sync this machine's plugin state to the node?", never: 'Never', seconds: 's',
@@ -178,10 +178,11 @@ window.__ModuleLoader__.load({
       return h('span', { className: 'ps-chip' + (tone === 'ok' ? ' ps-chip-ok' : tone === 'err' ? ' ps-chip-err' : '') }, children);
     }
 
-    function NodeForm({ hostOptions, initial, onCancel, onSave, busy, t }) {
-      const [draft, setDraft] = useState(initial || { name: '', sshAlias: hostOptions[0]?.alias || '', profile: 'web', dshHome: '~/.dsh', dshCommand: 'dsh' });
+    function NodeForm({ hostOptions, sshHostOptions, initial, onCancel, onSave, busy, t }) {
+      const [draft, setDraft] = useState(initial || { name: '', sshAlias: '', sshHost: '', profile: 'web', dshHome: '~/.dsh', dshCommand: 'dsh' });
       const update = (key) => (event) => setDraft((current) => ({ ...current, [key]: event.target.value }));
       const aliasKnown = hostOptions.some((host) => host.alias === draft.sshAlias);
+      const sshHostOptionsList = sshHostOptions || [];
       return h('div', { className: 'ps-card', 'data-dsh-part': 'node-form' }, [
         h('h3', { key: 'h' }, initial ? t('editNode') : t('addNode')),
         h('div', { className: 'ps-field', key: 'name' }, [h('label', { key: 'l' }, t('name')), h('input', { key: 'i', className: 'ps-input', value: draft.name, onChange: update('name'), placeholder: 'notebook' })]),
@@ -190,6 +191,13 @@ window.__ModuleLoader__.load({
           h('select', { key: 's', className: 'ps-select', value: aliasKnown ? draft.sshAlias : '', onChange: update('sshAlias') }, [
             h('option', { key: '', value: '' }, '— ' + t('chooseHost') + ' —'),
             ...hostOptions.map((host) => h('option', { key: host.alias, value: host.alias }, host.alias + ' · ' + host.user + '@' + host.host + ':' + host.port)),
+          ]),
+        ]),
+        h('div', { className: 'ps-field', key: 'sshHost' }, [
+          h('label', { key: 'l' }, t('sshHost')),
+          h('select', { key: 's', className: 'ps-select', value: sshHostOptionsList.includes(draft.sshHost) ? draft.sshHost : '', onChange: update('sshHost') }, [
+            h('option', { key: '', value: '' }, '— ' + t('chooseSshHost') + ' —'),
+            ...sshHostOptionsList.map((alias) => h('option', { key: alias, value: alias }, alias)),
           ]),
         ]),
         h('div', { className: 'ps-field', key: 'host' }, [h('label', { key: 'l' }, t('host')), h('input', { key: 'i', className: 'ps-input', value: draft.host || '', onChange: update('host'), placeholder: '192.168.1.10（可选）' })]),
@@ -220,6 +228,9 @@ window.__ModuleLoader__.load({
         ['teamsAdd', c.teams?.toAdd || [], (name) => name],
         ['teamsUpdate', c.teams?.toUpdate || [], (name) => name],
         ['teamsRemove', c.teams?.toRemove || [], (name) => name],
+        ['sshAdd', c.sshConfig?.added || [], (name) => name],
+        ['sshUpdate', c.sshConfig?.updated || [], (name) => name],
+        ['sshRemove', c.sshConfig?.removed || [], (name) => name],
       ].filter(([, items]) => items.length > 0);
       return h('div', { className: 'ps-card', 'data-dsh-part': 'plan' }, [
         h('div', { key: 'head', className: 'ps-card-head' }, [
@@ -278,6 +289,7 @@ window.__ModuleLoader__.load({
       const options = state?.options || {};
       const nodes = state?.nodes || [];
       const sshHosts = state?.sshHosts || [];
+      const sshConfigHosts = state?.sshConfigHosts || [];
 
       const toggleOption = async (key, value) => {
         try {
@@ -396,12 +408,14 @@ window.__ModuleLoader__.load({
             h(Stat, { key: 'm', value: state?.local?.modelRows ?? '—', label: t('modelRows') }),
             h(Stat, { key: 't', value: state?.local?.teams ?? '—', label: t('teams') }),
             h(Stat, { key: 'mm', value: state?.local?.members ?? '—', label: t('members') }),
+            h(Stat, { key: 'ssh', value: sshConfigHosts.length, label: t('sshConfig') }),
           ]),
         ]),
 
         h('div', { key: 'opts', className: 'ps-card' }, [
           h('h3', { key: 'h' }, t('options')),
           h(Toggle, { key: 'teams', checked: options.syncTeams !== false, label: t('optTeams'), onChange: (value) => toggleOption('syncTeams', value) }),
+          h(Toggle, { key: 'ssh', checked: options.syncSshConfig !== false, label: t('optSshConfig'), onChange: (value) => toggleOption('syncSshConfig', value) }),
           h(Toggle, { key: 'secrets', checked: options.includeSecrets !== false, label: t('optSecrets'), onChange: (value) => toggleOption('includeSecrets', value) }),
           h(Toggle, { key: 'local', checked: options.copyLocalBundles !== false, label: t('optCopyLocal'), onChange: (value) => toggleOption('copyLocalBundles', value) }),
           h(Toggle, { key: 'deps', checked: options.installLocalDeps !== false, label: t('optLocalDeps'), onChange: (value) => toggleOption('installLocalDeps', value) }),
@@ -414,7 +428,7 @@ window.__ModuleLoader__.load({
             h('h3', { key: 'h' }, t('nodes')),
             h(Button, { key: 'add', variant: 'primary', onClick: () => setForm({}) }, t('addNode')),
           ]),
-          form ? h(NodeForm, { key: 'form', hostOptions: sshHosts, initial: form.id ? form : undefined, t, busy: Boolean(busy), onCancel: () => setForm(null), onSave: saveNode }) : null,
+          form ? h(NodeForm, { key: 'form', hostOptions: sshHosts, sshHostOptions: sshConfigHosts, initial: form.id ? form : undefined, t, busy: Boolean(busy), onCancel: () => setForm(null), onSave: saveNode }) : null,
           nodes.length === 0 && !form ? h('p', { key: 'none', className: 'ps-muted' }, t('noNodes')) : null,
           nodes.map((node) => {
             const info = probe[node.id];
@@ -425,7 +439,7 @@ window.__ModuleLoader__.load({
                   node.name,
                   info ? h(Chip, { key: 'chip', tone: info.loading ? undefined : info.ok ? 'ok' : 'err' }, info.loading ? '…' : info.ok ? t('probeOk') + ' · ' + (info.dshVersion || '?') : t('probeFail')) : null,
                 ]),
-                h('div', { key: 'meta', className: 'ps-row-meta' }, (node.sshAlias ? node.sshAlias + ' · ' : '') + (node.profile || 'web') + ' · ' + (node.dshHome || '~/.dsh') + (info && !info.ok && info.error ? ' · ' + info.error : '')),
+                h('div', { key: 'meta', className: 'ps-row-meta' }, (node.sshHost ? '~/.ssh/config:' + node.sshHost + ' · ' : '') + (node.sshAlias ? node.sshAlias + ' · ' : '') + (node.profile || 'web') + ' · ' + (node.dshHome || '~/.dsh') + (info && !info.ok && info.error ? ' · ' + info.error : '')),
               ]),
               h('div', { key: 'actions', className: 'ps-actions' }, [
                 h(Button, { key: 'probe', disabled: nodeBusy, onClick: () => runProbe(node.id) }, t('probe')),
