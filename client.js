@@ -21,7 +21,7 @@ window.__ModuleLoader__.load({
         optLocalDeps: '为上传的本地插件安装依赖', optCopyLocal: '上传本地目录插件',
         optBackup: '同步前备份对端', local: '本机状态', packages: '插件依赖', bundles: '启用插件',
         rows: '配置行', modelRows: '模型配置（跳过）', teams: '团队', members: '成员',
-        history: '同步记录', noHistory: '还没有同步记录。', planTitle: '差异', noChanges: '两端已一致。',
+        history: '同步记录', noHistory: '还没有同步记录。', clearHistory: '清除记录', clearHistoryConfirm: '确定清除全部同步记录？不会删除节点和同步选项。', historyCleared: '同步记录已清除', planTitle: '差异', noChanges: '两端已一致。',
         install: '待安装插件', remove: '待移除插件', enable: '待启用', disable: '待停用',
         patchAdd: '配置待新增', patchUpdate: '配置待更新', patchRemove: '配置待移除',
         teamsAdd: '团队待新增', teamsUpdate: '团队待更新', teamsRemove: '团队待移除',
@@ -46,7 +46,7 @@ window.__ModuleLoader__.load({
         optLocalDeps: 'Install dependencies of uploaded local plugins', optCopyLocal: 'Upload local-directory plugins',
         optBackup: 'Back up the node before syncing', local: 'Local state', packages: 'Plugin dependencies',
         bundles: 'Enabled bundles', rows: 'Config rows', modelRows: 'Model config (skipped)',
-        teams: 'Teams', members: 'Members', history: 'History', noHistory: 'No sync yet.',
+        teams: 'Teams', members: 'Members', history: 'History', noHistory: 'No sync yet.', clearHistory: 'Clear history', clearHistoryConfirm: 'Clear all sync records? Nodes and options are kept.', historyCleared: 'Sync history cleared',
         planTitle: 'Diff', noChanges: 'Both sides already match.', install: 'Plugins to install',
         remove: 'Plugins to remove', enable: 'Bundles to enable', disable: 'Bundles to disable',
         patchAdd: 'Config rows to add', patchUpdate: 'Config rows to update', patchRemove: 'Config rows to remove',
@@ -376,6 +376,20 @@ window.__ModuleLoader__.load({
         }
       };
 
+      const clearHistory = async () => {
+        if (!window.confirm(t('clearHistoryConfirm'))) return;
+        setBusy('history');
+        try {
+          const data = await api('history/clear', {});
+          setNotice(t('historyCleared') + (data.cleared ? ' · ' + data.cleared : ''));
+          await load();
+        } catch (clearError) {
+          setError(clearError.message);
+        } finally {
+          setBusy('');
+        }
+      };
+
       const saveNode = async (node) => {
         try {
           await api('node', { action: 'save', node });
@@ -483,7 +497,10 @@ window.__ModuleLoader__.load({
         ]) : null,
 
         h('div', { key: 'history', className: 'ps-card' }, [
-          h('h3', { key: 'h' }, t('history')),
+          h('div', { key: 'head', className: 'ps-card-head' }, [
+            h('h3', { key: 'h' }, t('history')),
+            (state?.history || []).length > 0 ? h(Button, { key: 'clear', variant: 'danger', disabled: busy === 'history', onClick: clearHistory }, busy === 'history' ? '…' : t('clearHistory')) : null,
+          ]),
           (state?.history || []).length === 0 ? h('p', { key: 'none', className: 'ps-muted' }, t('noHistory')) : null,
           h('div', { key: 'list', className: 'ps-history' }, (state?.history || []).map((item, index) => h('div', { key: item.at + '-' + index, className: 'ps-history-row' }, [
             h(Chip, { key: 'c', tone: item.ok ? 'ok' : 'err' }, item.ok ? 'OK' : 'FAIL'),

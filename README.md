@@ -32,6 +32,7 @@ A DeepSeek Harness (DSH) Web plugin that exports this profile's installed plugin
 - **Model configuration is excluded** — rows and dependencies matching `llm`, `model`, or `web-search` are skipped, `settings.yaml` is never written, local team model pins are not copied, and existing remote pins are preserved.
 - **Backups** — before applying, the target's `package.json`, lockfile, patch, and team ledger are copied to `$DSH_HOME/plugin-sync/backups/<timestamp>/`.
 - **Safe by default** — remote-only plugins, rows, and teams are kept unless **Mirror exactly** is enabled.
+- **Clear history** — the sync history card has a **Clear history** button; it removes records only, never nodes or options.
 
 ## Install
 
@@ -44,7 +45,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 Pin a release:
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.0
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.1
 ```
 
 Restart `dsh web` if the settings section or tools do not appear after installation.

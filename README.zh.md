@@ -32,6 +32,7 @@ kind: "package-reference"
 - **模型配置例外**：id 或包名匹配 `llm`、`model`、`web-search` 的行和依赖不同步；`settings.yaml` 不写入；本机团队成员的模型 pin 不复制，远端已有 pin 保留。
 - **备份**：同步前把远端 `package.json`、锁文件、patch 和团队账本复制到 `$DSH_HOME/plugin-sync/backups/<时间戳>/`。
 - **默认安全**：默认保留远端独有的插件、配置行和团队；只有打开 **完全镜像** 才会删除。
+- **清除记录**：同步记录卡片有 **清除记录** 按钮，只清空记录，不删除节点和同步选项。
 
 ## 安装
 
@@ -44,7 +45,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 固定到某个版本：
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.0
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.1
 ```
 
 安装后如果侧边栏入口或工具没有出现，重启一次 `dsh web`。
