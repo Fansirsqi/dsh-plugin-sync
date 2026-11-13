@@ -1,5 +1,5 @@
 ---
-description: "Back up and sync DSH plugins, configuration switches, and Agent Center teams to other DSH nodes."
+description: "Back up and sync DSH plugins, configuration, and switches to other DSH nodes."
 kind: "package-reference"
 ---
 
@@ -14,11 +14,11 @@ English | [中文](README.zh.md)
 </p>
 
 <p align="center">
-  <strong>Back up and sync DSH plugins, switches, and Agent Center teams to another node.</strong><br>
+  <strong>Back up and sync DSH plugins, configuration, and switches to another node.</strong><br>
   <em>Standalone sidebar page · five Agent tools · install missing plugins first, then apply config.</em>
 </p>
 
-A DeepSeek Harness (DSH) Web plugin that exports this profile's installed plugins, bundle selection, `cordis.patch.yml` configuration, and Agent Center teams, then applies them to another DSH node over SSH. Node connections can read the DSH host's `~/.ssh/config` live. A remote plugin missing from the target is installed **before** its configuration is written. Model-related configuration is never copied; each side keeps its own model routes.
+A DeepSeek Harness (DSH) Web plugin that exports this profile's installed plugins, bundle selection, `cordis.patch.yml` configuration, then applies them to another DSH node over SSH. Node connections can read the DSH host's `~/.ssh/config` live. A remote plugin missing from the target is installed **before** its configuration is written. Model-related configuration is never copied; each side keeps its own model routes.
 
 ## Features
 
@@ -26,11 +26,10 @@ A DeepSeek Harness (DSH) Web plugin that exports this profile's installed plugin
 - **Enable switches** — the remote `dsh.profile.bundles` list follows this machine. A plugin disabled here is disabled there.
 - **Plugin configuration** — `cordis.patch.yml` rows are merged by id. Remote comments, `!!js` expressions, model rows, and untouched rows survive; local insert rows are added when absent.
 - **Local-directory bundles** — `link:` / `file:` plugins are packed to `$DSH_HOME/plugin-sync/bundles/<name>` on the target, linked into the profile, and re-uploaded only when their content fingerprint changes.
-- **Agent Center teams** — merges `dsh-agents/ledger.json` `teams` by name. Remote team ids, member ids, and `runs` history are preserved.
 - **Read local SSH config (on by default)** — node connections can resolve an OpenSSH Host (`fedora`) from the DSH host's own `~/.ssh/config` instead of a cached `dsh-ssh` IP. The file is read live, never modified or synced.
-- **Model configuration is excluded** — rows and dependencies matching `llm`, `model`, or `web-search` are skipped, `settings.yaml` is never written, local team model pins are not copied, and existing remote pins are preserved.
-- **Backups** — before applying, the target's `package.json`, lockfile, patch, and team ledger are copied to `$DSH_HOME/plugin-sync/backups/<timestamp>/`.
-- **Safe by default** — remote-only plugins, rows, and teams are kept unless **Mirror exactly** is enabled.
+- **Model configuration is excluded** — rows and dependencies matching `llm`, `model`, or `web-search` are skipped, `settings.yaml` is never written.
+- **Backups** — before applying, the target's `package.json`, lockfile, and patch are copied to `$DSH_HOME/plugin-sync/backups/<timestamp>/`.
+- **Safe by default** — remote-only plugins and rows are kept unless **Mirror exactly** is enabled.
 - **Clear history** — the sync history card has a **Clear history** button; it removes records only, never nodes or options.
 - **Runtime-aware versions** — when the target runs a different DSH version, existing plugin versions are preserved and missing official plugins use the target runtime version, so the target does not reject the install. Match the DSH versions first for an exact mirror.
 
@@ -45,7 +44,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 Pin a release:
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.4
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.4.0
 ```
 
 Restart `dsh web` if the settings section or tools do not appear after installation.
@@ -65,9 +64,9 @@ The same operations are available to an Agent:
 
 | Tool | Purpose |
 | --- | --- |
-| `plugin_sync_status` | Local plugin/team counts, configured nodes, recent runs. |
+| `plugin_sync_status` | Local plugin counts, configured nodes, recent runs. |
 | `plugin_sync_plan` | Connect to a node and return the exact diff. |
-| `plugin_sync_apply` | Install missing plugins, then apply configuration and teams. |
+| `plugin_sync_apply` | Install missing plugins, then apply configuration. |
 | `plugin_sync_backup` | Export a local backup; with a node, also back up the target. |
 | `plugin_sync_nodes` | List, add, or remove sync nodes. |
 
@@ -85,8 +84,7 @@ Example prompts:
 | Bundle switches | `dsh.profile.bundles` mirrors this machine; a locally disabled plugin is disabled remotely. |
 | Plugin config | `cordis.patch.yml` rows merge by id; insert rows are added when missing. |
 | Local bundles | Source directories are uploaded and linked; content fingerprints avoid needless uploads. |
-| Agent Center teams | Teams merge by name; remote ids and run history are preserved. |
-| Model config | Skipped: model/search rows and dependencies, `settings.yaml`, and team model pins. |
+| Model config | Skipped: model/search rows and dependencies, `settings.yaml`. |
 | Secrets | Synced by default because MCP servers need them; turn this off in Settings if the target must not receive tokens. |
 
 ## Apply order
@@ -97,24 +95,24 @@ Example prompts:
 4. Write dependencies first and run `dsh plugin --profile <profile> install`, so missing plugins exist before any configuration references them.
 5. Merge `cordis.patch.yml`.
 6. Write the final bundle selection; when mirroring, install once more to prune removed dependencies.
-7. Merge Agent Center teams.
-8. Re-read the target and verify dependency versions, config rows, enabled bundles, and team names.
+7. Re-read the target and verify dependency versions, config rows, and enabled bundles.
 
 If an install stage fails, `package.json` and the lockfile are restored from the backups taken for that run.
 
 ## Settings
 
-- **Sync Agent Center teams** — on by default.
 - **Read local SSH config (`~/.ssh/config`)** — on by default; resolves node Host aliases from the DSH host's own file. It cannot read the browser machine's config and never writes the file.
 - **Sync secret fields** — on by default; controls `token` / `apiKey` / `password` values.
 - **Upload local-directory plugins** — on by default.
 - **Install dependencies of uploaded local plugins** — on by default.
 - **Back up the node before syncing** — on by default.
-- **Mirror exactly** — off by default; deletes remote-only plugins, rows, and teams.
+- **Mirror exactly** — off by default; deletes remote-only plugins and rows.
 
 Node definitions and history live in `$DSH_HOME/plugin-sync/config.json` (mode 0600).
 
 ## Requirements and limits
+
+Team synchronization has been removed; saved `syncTeams` options are ignored. Existing team ledgers, historical backups, and official Agent Teams sessions are left untouched and excluded from synchronization and new backups.
 
 - The target must run DSH on Linux and be reachable over SSH. If `dsh` is missing, apply refuses before making changes.
 - Prefer a `~/.ssh/config` Host for node connections. A `dsh-ssh` alias stores a snapshot of the host and goes stale when the IP changes; an SSH config Host is read live.
@@ -122,12 +120,11 @@ Node definitions and history live in `$DSH_HOME/plugin-sync/config.json` (mode 0
 - A newly installed plugin may need a target `dsh web` restart if HMR does not surface it.
 - A local bundle that declares its own native dependencies needs a matching build environment on the target; uploaded bundles install with `pnpm install --prod --ignore-scripts`.
 - Different DSH versions across nodes produce a warning, not a hard stop.
-- Teams that pin a preset or workspace the target does not serve will fail when run there; the plugin syncs definitions, not those registries.
 - Backups are file-level snapshots; they do not include `node_modules`. Restore by copying files back and running `dsh plugin install`.
 
 ## Development
 
-No runtime dependency is declared; the plugin borrows the profile's `yaml` package. This repository has a syntax check and SSH config parser tests:
+The plugin declares its own `yaml` runtime dependency and does not rely on third-party plugin dependencies. For a local checkout, run `npm install --ignore-scripts --legacy-peer-deps` first. This repository includes syntax checks, SSH config parser tests, and synchronization regression tests:
 
 ```sh
 npm test
@@ -140,7 +137,7 @@ index.js            Host entry (routes + tools)
 client.js           Standalone Plugin Sync sidebar page
 lib/snapshot.js     Local/remote snapshots
 lib/plan.js         Diff calculation
-lib/merge.js        package.json and team ledger merges
+lib/merge.js        package.json merges
 lib/yaml.js         cordis.patch.yml merge (comments and !!js preserved)
 lib/ssh.js          SSH transport, live Host resolution, remote install, directory upload
 lib/ssh-config.js   ~/.ssh/config parser and Host-block merge

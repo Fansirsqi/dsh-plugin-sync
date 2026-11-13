@@ -1,10 +1,10 @@
 {
   "meta": {
     "title": "插件同步",
-    "description": "把本机的 DSH 插件、配置开关、智能体中心团队和 SSH 配置同步到其他节点。"
+    "description": "把本机的 DSH 插件、版本、配置和启用状态备份并同步到其他节点。"
   },
   "title": "插件同步",
-  "intro": "把本机已安装的插件、版本、启用开关、插件配置和智能体中心团队同步到其他 DSH 节点；模型相关配置不会同步。",
+  "intro": "把本机已安装的插件、版本、启用开关和插件配置同步到其他 DSH 节点；模型相关配置不会同步。",
   "nodes": "节点",
   "addNode": "添加节点",
   "editNode": "编辑节点",
@@ -30,8 +30,7 @@
   "checking": "检查中",
   "lastResult": "最近同步",
   "options": "同步选项",
-  "optPrune": "完全镜像（删除对端多余的插件、配置行和团队）",
-  "optTeams": "同步智能体中心团队",
+  "optPrune": "完全镜像（删除对端多余的插件和配置行）",
   "optSecrets": "同步密钥字段（token / apiKey / password）",
   "optLocalDeps": "为上传的本地插件安装依赖",
   "optCopyLocal": "上传本地目录插件",
@@ -41,8 +40,6 @@
   "bundles": "启用插件",
   "rows": "配置行",
   "modelRows": "模型配置（跳过）",
-  "teams": "团队",
-  "members": "成员",
   "history": "同步记录",
   "noHistory": "还没有同步记录。",
   "planTitle": "差异",
@@ -54,9 +51,6 @@
   "patchAdd": "配置待新增",
   "patchUpdate": "配置待更新",
   "patchRemove": "配置待移除",
-  "teamsAdd": "团队待新增",
-  "teamsUpdate": "团队待更新",
-  "teamsRemove": "团队待移除",
   "upload": "本地插件待上传",
   "warnings": "提示",
   "resultOk": "同步完成",

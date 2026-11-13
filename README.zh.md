@@ -1,5 +1,5 @@
 ---
-description: "把本机 DSH 插件、配置开关与智能体中心团队备份并同步到其他 DSH 节点。"
+description: "把本机 DSH 插件、配置和启用开关备份并同步到其他 DSH 节点。"
 kind: "package-reference"
 ---
 
@@ -14,11 +14,11 @@ kind: "package-reference"
 </p>
 
 <p align="center">
-  <strong>把本机 DSH 插件、开关和智能体中心团队同步到另一台节点。</strong><br>
+  <strong>把本机 DSH 插件、配置和启用开关同步到另一台节点。</strong><br>
   <em>独立侧边栏页面 · 五个 Agent 工具 · 先装缺失插件，再写配置。</em>
 </p>
 
-这是 DeepSeek Harness（DSH）Web 的插件：导出当前 profile 的已安装插件、启用开关、`cordis.patch.yml` 配置和智能体中心团队，再通过 SSH 应用到另一台 DSH 节点。节点连接可以实时读取 DSH 主机自身的 `~/.ssh/config`。远端缺失的插件会**先安装**，然后才写引用它的配置。模型相关配置不会跨节点复制，两端各自保留自己的模型路由。
+这是 DeepSeek Harness（DSH）Web 的插件：导出当前 profile 的已安装插件、启用开关、`cordis.patch.yml` 配置，再通过 SSH 应用到另一台 DSH 节点。节点连接可以实时读取 DSH 主机自身的 `~/.ssh/config`。远端缺失的插件会**先安装**，然后才写引用它的配置。模型相关配置不会跨节点复制，两端各自保留自己的模型路由。
 
 ## 功能
 
@@ -26,11 +26,10 @@ kind: "package-reference"
 - **启用开关**：远端 `dsh.profile.bundles` 跟随本机；本机停用的插件在远端也停用。
 - **插件配置**：`cordis.patch.yml` 按 row id 合并。远端注释、`!!js` 表达式、模型行和未涉及的行都会保留；本机有、远端没有的 insert 行会补上。
 - **本地目录插件**：`link:` / `file:` 插件会打包上传到远端 `$DSH_HOME/plugin-sync/bundles/<name>`，以 link 方式安装；按内容指纹判断是否需要重传。
-- **智能体中心团队**：按团队名合并 `dsh-agents/ledger.json` 的 `teams`，保留远端团队 id、成员 id 和 `runs` 历史。
 - **读取本机 SSH 配置（默认开）**：节点连接可以使用 DSH 主机自身 `~/.ssh/config` 里的 OpenSSH Host（如 `fedora`），而不是 `dsh-ssh` 缓存的 IP。文件只读，不修改也不同步。
-- **模型配置例外**：id 或包名匹配 `llm`、`model`、`web-search` 的行和依赖不同步；`settings.yaml` 不写入；本机团队成员的模型 pin 不复制，远端已有 pin 保留。
-- **备份**：同步前把远端 `package.json`、锁文件、patch 和团队账本复制到 `$DSH_HOME/plugin-sync/backups/<时间戳>/`。
-- **默认安全**：默认保留远端独有的插件、配置行和团队；只有打开 **完全镜像** 才会删除。
+- **模型配置例外**：id 或包名匹配 `llm`、`model`、`web-search` 的行和依赖不同步；`settings.yaml` 不写入。
+- **备份**：同步前把远端 `package.json`、锁文件 和 patch复制到 `$DSH_HOME/plugin-sync/backups/<时间戳>/`。
+- **默认安全**：默认保留远端独有的插件和配置行；只有打开 **完全镜像** 才会删除。
 - **清除记录**：同步记录卡片有 **清除记录** 按钮，只清空记录，不删除节点和同步选项。
 - **运行时版本适配**：两端 DSH 版本不同时，保留远端已安装插件的版本；缺失的官方插件按远端 DSH 版本安装，避免被运行时拒绝安装。要完全镜像，建议先把两端 DSH 升级到同一版本。
 
@@ -45,7 +44,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync
 固定到某个版本：
 
 ```sh
-dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.4
+dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.4.0
 ```
 
 安装后如果侧边栏入口或工具没有出现，重启一次 `dsh web`。
@@ -65,9 +64,9 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.4
 
 | 工具 | 用途 |
 | --- | --- |
-| `plugin_sync_status` | 本机插件/团队数量、已配置节点、最近同步记录。 |
+| `plugin_sync_status` | 本机插件数量、已配置节点、最近同步记录。 |
 | `plugin_sync_plan` | 连接节点并返回精确差异。 |
-| `plugin_sync_apply` | 先安装缺失插件，再应用配置和团队。 |
+| `plugin_sync_apply` | 先安装缺失插件，再应用配置。 |
 | `plugin_sync_backup` | 导出本机备份；带节点时同时备份远端。 |
 | `plugin_sync_nodes` | 查看、添加或删除同步节点。 |
 
@@ -85,8 +84,7 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.4
 | 插件开关 | `dsh.profile.bundles` 与本机对齐；本机停用的插件在远端也停用。 |
 | 插件配置 | `cordis.patch.yml` 按 id 合并；缺失的 insert 行会补上。 |
 | 本地目录插件 | 上传源码并以 link 安装；内容指纹避免重复上传。 |
-| 智能体团队 | 按名称合并；保留远端 id 和运行历史。 |
-| 模型配置 | 跳过：模型/搜索行与依赖、`settings.yaml`、团队模型 pin。 |
+| 模型配置 | 跳过：模型/搜索行与依赖、`settings.yaml`。 |
 | 密钥 | 默认同步（MCP 需要）；如果远端不应收到 token，可在设置中关闭。 |
 
 ## 执行顺序
@@ -97,24 +95,24 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.4
 4. **先写依赖并执行 `dsh plugin --profile <profile> install`**，保证配置引用插件时它已经存在。
 5. 合并 `cordis.patch.yml`。
 6. 写入最终 bundle 启用列表；完全镜像时再安装一次以清理被移除的依赖。
-7. 合并智能体中心团队。
-8. 重新读取远端，校验依赖版本、配置行、启用项和团队名称。
+7. 重新读取远端，校验依赖版本、配置行和启用项。
 
 如果安装阶段失败，会用本次的备份恢复远端的 `package.json` 和锁文件。
 
 ## 设置项
 
-- **同步智能体中心团队**：默认开。
 - **读取本机 SSH 配置（`~/.ssh/config`）**：默认开；只用 DSH 主机自身的文件解析节点 Host 别名。读不到浏览器电脑的配置，也不会写入该文件。
 - **同步密钥字段**：默认开；控制 `token` / `apiKey` / `password`。
 - **上传本地目录插件**：默认开。
 - **为上传的本地插件安装依赖**：默认开。
 - **同步前备份对端**：默认开。
-- **完全镜像**：默认关；会删除远端独有的插件、配置行和团队。
+- **完全镜像**：默认关；会删除远端独有的插件和配置行。
 
 节点与同步记录保存在 `$DSH_HOME/plugin-sync/config.json`（0600）。
 
 ## 前提与限制
+
+团队同步功能已移除，旧版 `syncTeams` 选项会被忽略。已有团队账本、历史备份和官方 Agent Teams 会话保持原样，不纳入同步或新备份。
 
 - 远端必须是运行 DSH 的 Linux 节点，并且 SSH 可达；没有 `dsh` 命令时 apply 会在改动前拒绝执行。
 - 节点连接优先使用 `~/.ssh/config` 的 Host。`dsh-ssh` 别名保存的是主机快照，IP 变了会过期；SSH 配置 Host 是实时读取的。
@@ -122,12 +120,11 @@ dsh plugin --profile web add github:Fansirsqi/dsh-plugin-sync#v0.3.4
 - 新安装插件如果页面没有出现，重启一次远端 `dsh web` 即可。
 - 本地目录插件如果声明了原生依赖，远端需要对应的构建环境；默认执行 `pnpm install --prod --ignore-scripts`。
 - 两端 DSH 版本不同会给出警告，不会强制中止。
-- 团队如果钉了远端不存在的 preset 或 workspace，运行时会失败；本插件只同步定义，不同步这些注册表。
 - 备份是文件级快照，不包含 `node_modules`；恢复时把文件复制回 profile 后重新执行 `dsh plugin install`。
 
 ## 开发
 
-插件本身没有运行时依赖，YAML 解析复用 profile 里的 `yaml`。仓库自带语法检查和 SSH 配置解析测试：
+插件声明自己的 `yaml` 运行时依赖，无需借用第三方插件的依赖。本地源码使用前先执行 `npm install --ignore-scripts --legacy-peer-deps`。仓库自带语法检查、SSH 配置解析和同步回归测试：
 
 ```sh
 npm test
@@ -140,7 +137,7 @@ index.js            Host 入口（routes + tools）
 client.js           独立的插件同步侧边栏页面
 lib/snapshot.js     本机/远端快照
 lib/plan.js         差异计算
-lib/merge.js        package.json 与团队账本合并
+lib/merge.js        package.json 合并
 lib/yaml.js         cordis.patch.yml 合并（保留注释和 !!js）
 lib/ssh.js          SSH 传输、实时 Host 解析、远端安装、目录上传
 lib/ssh-config.js   ~/.ssh/config 解析与 Host 合并

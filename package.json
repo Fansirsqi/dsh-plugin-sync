@@ -1,7 +1,7 @@
 {
   "name": "@fansirsqi/dsh-plugin-sync",
-  "version": "0.3.4",
-  "description": "Back up and sync DSH plugins, switches, Agent Center teams, and SSH config to other DSH nodes. 把本机 DSH 插件、配置开关、智能体中心团队和 SSH 配置同步到其他节点。",
+  "version": "0.4.0",
+  "description": "Back up and sync DSH plugins, versions, configuration, and switches to other nodes. 把本机 DSH 插件、版本、配置和启用状态备份并同步到其他节点。",
   "type": "module",
   "license": "MIT",
   "author": "Fansirsqi",
@@ -11,8 +11,7 @@
     "deepseek-harness",
     "plugin",
     "sync",
-    "backup",
-    "agent-center"
+    "backup"
   ],
   "repository": {
     "type": "git",
@@ -43,8 +42,11 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node test/check.mjs && node --test test/ssh-config.test.mjs test/runtime.test.mjs",
+    "test": "node test/check.mjs && node --test test/ssh-config.test.mjs test/runtime.test.mjs test/teams.test.mjs",
     "check": "node test/check.mjs"
+  },
+  "dependencies": {
+    "yaml": "^2.9.1"
   },
   "peerDependencies": {
     "@deepseek-ai/dsh": ">=0.2.1-rc.3",
